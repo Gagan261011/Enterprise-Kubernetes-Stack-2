@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-bff
+  namespace: middleware
+  labels:
+    app: order-bff
+    tier: bff
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-bff
+  template:
+    metadata:
+      labels:
+        app: order-bff
+        tier: bff
+    spec:
+      imagePullSecrets:
+        - name: ecr-credentials
+      containers:
+        - name: order-bff
+          image: ${ECR_REGISTRY}/order-bff:latest
+          ports:
+            - containerPort: 8082
+              name: http
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "kubernetes"
+            - name: SERVER_PORT
+              value: "8082"
+            - name: MIDDLEWARE_URL
+              value: "https://security-middleware.middleware.svc.cluster.local:8443"
+            - name: MTLS_KEYSTORE_PATH
+              value: "/app/certs/keystore.p12"
+            - name: MTLS_KEYSTORE_PASSWORD
+              value: "changeit"
+            - name: MTLS_TRUSTSTORE_PATH
+              value: "/app/certs/truststore.p12"
+            - name: MTLS_TRUSTSTORE_PASSWORD
+              value: "changeit"
+          volumeMounts:
+            - name: mtls-certs
+              mountPath: /app/certs
+              readOnly: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8082
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 5
+      volumes:
+        - name: mtls-certs
+          secret:
+            secretName: mtls-certs-order-bff
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-bff
+  namespace: middleware
+  labels:
+    app: order-bff
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8082
+      targetPort: 8082
+      protocol: TCP
+      name: http
+  selector:
+    app: order-bff

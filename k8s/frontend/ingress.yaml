@@ -1,0 +1,70 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: frontend
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: shop.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-bff
+                port:
+                  number: 8081
+          - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: user-bff
+                port:
+                  number: 8081
+          - path: /api/cart
+            pathType: Prefix
+            backend:
+              service:
+                name: order-bff
+                port:
+                  number: 8082
+          - path: /api/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-bff
+                port:
+                  number: 8082
+---
+# Cross-namespace service references
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-bff
+  namespace: frontend
+spec:
+  type: ExternalName
+  externalName: user-bff.middleware.svc.cluster.local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-bff
+  namespace: frontend
+spec:
+  type: ExternalName
+  externalName: order-bff.middleware.svc.cluster.local

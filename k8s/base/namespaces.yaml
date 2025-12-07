@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backend
+  labels:
+    app.kubernetes.io/part-of: enterprise-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: middleware
+  labels:
+    app.kubernetes.io/part-of: enterprise-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: frontend
+  labels:
+    app.kubernetes.io/part-of: enterprise-shop
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    app.kubernetes.io/part-of: enterprise-shop

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend-service
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: enterprise-shop
+    tier: backend
+spec:
+  project: enterprise-shop
+  source:
+    repoURL: ${GIT_REPO_URL}
+    targetRevision: HEAD
+    path: k8s/backend
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

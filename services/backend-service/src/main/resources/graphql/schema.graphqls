@@ -1,0 +1,128 @@
+# GraphQL Schema for Enterprise Shop Backend
+
+type Query {
+    products: [Product!]!
+    product(id: ID!): Product
+    user(id: ID!): User
+    cart(userId: ID!): Cart
+    orders(userId: ID!): [Order!]!
+    orderTracking(orderId: ID!): OrderTracking
+}
+
+type Mutation {
+    register(input: UserRegistrationInput!): User!
+    login(email: String!, password: String!): LoginResponse!
+    addToCart(userId: ID!, productId: ID!, quantity: Int!): Cart!
+    submitOrder(userId: ID!, shippingAddress: String!): Order!
+    processPayment(
+        orderId: ID!
+        cardNumber: String!
+        cardHolderName: String!
+        expiryDate: String!
+        cvv: String!
+    ): PaymentResponse!
+}
+
+type User {
+    id: ID!
+    email: String!
+    firstName: String!
+    lastName: String!
+    phone: String
+    address: String
+    createdAt: String!
+}
+
+type Product {
+    id: ID!
+    name: String!
+    description: String
+    price: Float!
+    imageUrl: String
+    category: String
+    stockQuantity: Int
+    active: Boolean
+}
+
+type Cart {
+    id: ID
+    userId: ID!
+    items: [CartItem!]!
+    totalAmount: Float!
+}
+
+type CartItem {
+    id: ID!
+    productId: ID!
+    productName: String!
+    quantity: Int!
+    unitPrice: Float!
+    totalPrice: Float!
+}
+
+type Order {
+    id: ID!
+    userId: ID!
+    items: [OrderItem!]!
+    totalAmount: Float!
+    status: OrderStatus!
+    shippingAddress: String
+    paymentStatus: String
+    createdAt: String!
+}
+
+type OrderItem {
+    id: ID!
+    productId: ID!
+    productName: String!
+    quantity: Int!
+    unitPrice: Float!
+    totalPrice: Float!
+}
+
+enum OrderStatus {
+    PENDING
+    CONFIRMED
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+type OrderTracking {
+    orderId: ID!
+    currentStatus: OrderStatus!
+    timeline: [TrackingEvent!]!
+    estimatedDelivery: String
+}
+
+type TrackingEvent {
+    status: OrderStatus!
+    timestamp: String
+    description: String!
+    completed: Boolean!
+}
+
+type LoginResponse {
+    userId: ID!
+    email: String!
+    firstName: String!
+    lastName: String!
+    token: String!
+}
+
+type PaymentResponse {
+    orderId: ID!
+    transactionId: String
+    status: String!
+    message: String!
+}
+
+input UserRegistrationInput {
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+    phone: String
+    address: String
+}

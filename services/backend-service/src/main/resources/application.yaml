@@ -1,0 +1,62 @@
+# Backend Service Configuration
+server:
+  port: 8080
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEYSTORE:/certs/keystore.p12}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:changeit}
+    key-store-type: PKCS12
+    trust-store: ${SSL_TRUSTSTORE:/certs/truststore.p12}
+    trust-store-password: ${SSL_TRUSTSTORE_PASSWORD:changeit}
+    client-auth: ${SSL_CLIENT_AUTH:want}
+
+spring:
+  application:
+    name: backend-service
+  
+  datasource:
+    url: jdbc:h2:mem:shopdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  
+  graphql:
+    graphiql:
+      enabled: true
+    path: /graphql
+    schema:
+      locations: classpath:graphql/
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:enterprise-k8s-shop-secret-key-minimum-256-bits-for-security}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.enterprise.shop: DEBUG
+    org.springframework.security: INFO

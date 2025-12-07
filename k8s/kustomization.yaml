@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - base/namespaces.yaml
+  - backend/backend-config.yaml
+  - backend/backend-service.yaml
+  - middleware/security-middleware.yaml
+  - middleware/user-bff.yaml
+  - middleware/order-bff.yaml
+  - frontend/frontend.yaml
+  - frontend/ingress.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: enterprise-shop
+  app.kubernetes.io/managed-by: argocd
